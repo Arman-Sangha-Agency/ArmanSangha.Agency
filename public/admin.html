@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel — Arman Sangha Agency</title>
+<meta name="robots" content="noindex,nofollow"/>
+<style>
+:root{--gold:#FFD700;--gold-dark:#C9A800;--green:#00A651;--black:#0a0a0a;--black2:#111;--black3:#1a1a1a;--black4:#242424;--white:#fff;--white80:rgba(255,255,255,0.8);--white40:rgba(255,255,255,0.4);--white10:rgba(255,255,255,0.1);--red:#FF4444;--sidebar:240px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--black);color:var(--white);min-height:100vh;}
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--black2);} ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at center,rgba(255,215,0,0.08),transparent 60%);}
+.login-card{background:var(--black3);border:1px solid rgba(255,215,0,0.3);border-radius:24px;padding:40px;width:100%;max-width:380px;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo h1{font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#FFF3B0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.login-logo p{font-size:0.75rem;color:var(--white40);margin-top:4px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:0.75rem;color:var(--white40);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:1px;}
+.form-input{width:100%;background:var(--black4);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:var(--white);font-size:0.9rem;transition:border-color 0.2s;outline:none;}
+.form-input:focus{border-color:var(--gold);}
+.btn{padding:12px 20px;border-radius:10px;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--black);}
+.btn-gold:hover{transform:scale(1.02);box-shadow:0 0 20px rgba(255,215,0,0.4);}
+.btn-danger{background:rgba(255,68,68,0.15);color:var(--red);border:1px solid rgba(255,68,68,0.3);}
+.btn-danger:hover{background:rgba(255,68,68,0.25);}
+.btn-sm{padding:6px 12px;font-size:0.75rem;}
+.btn-ghost{background:var(--white10);color:var(--white);}
+.btn-ghost:hover{background:rgba(255,255,255,0.15);}
+.btn-green{background:linear-gradient(135deg,var(--green),#006400);color:#fff;}
+.btn-full{width:100%;}
+.login-error{color:var(--red);font-size:0.8rem;margin-top:8px;text-align:center;display:none;}
+
+/* DASHBOARD */
+#dashboard{display:none;min-height:100vh;}
+.dash-layout{display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--black2);border-right:1px solid rgba(255,255,255,0.06);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;transition:transform 0.3s;}
+.sidebar-logo{padding:20px 16px;border-bottom:1px solid rgba(255,215,0,0.15);}
+.sidebar-logo h2{font-size:0.95rem;font-weight:800;color:var(--gold);}
+.sidebar-logo p{font-size:0.65rem;color:var(--white40);margin-top:2px;}
+.sidebar-nav{padding:12px 0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;transition:all 0.2s;font-size:0.82rem;color:var(--white40);border-left:3px solid transparent;}
+.nav-item:hover{background:var(--white10);color:var(--white);}
+.nav-item.active{background:rgba(255,215,0,0.08);color:var(--gold);border-left-color:var(--gold);}
+.nav-icon{font-size:1rem;width:20px;}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,0.06);}
+
+/* MAIN */
+.main-content{margin-left:var(--sidebar);flex:1;min-height:100vh;}
+.topbar{background:var(--black2);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--white);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.save-indicator{font-size:0.75rem;color:var(--green);display:none;align-items:center;gap:6px;}
+.save-indicator.show{display:flex;}
+
+.page-content{padding:24px;max-width:1000px;}
+.panel-section{display:none;}
+.panel-section.active{display:block;}
+
+/* CARDS */
+.card{background:var(--black3);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:20px;}
+.card-title{font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-row.single{grid-template-columns:1fr;}
+textarea.form-input{resize:vertical;min-height:80px;}
+select.form-input{appearance:none;}
+
+/* PLANS TABLE */
+.plans-table{width:100%;border-collapse:collapse;}
+.plans-table th{background:var(--black4);padding:10px 12px;font-size:0.75rem;color:var(--white40);text-align:left;text-transform:uppercase;letter-spacing:1px;}
+.plans-table td{padding:12px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.85rem;vertical-align:middle;}
+.plans-table tr:last-child td{border-bottom:none;}
+.status-badge{font-size:0.7rem;padding:3px 8px;border-radius:10px;font-weight:700;}
+.status-active{background:rgba(0,166,81,0.2);color:var(--green);border:1px solid rgba(0,166,81,0.3);}
+.status-disabled{background:rgba(255,68,68,0.15);color:var(--red);border:1px solid rgba(255,68,68,0.25);}
+
+/* TAGS INPUT */
+.tags-container{background:var(--black4);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;min-height:60px;display:flex;flex-wrap:wrap;gap:6px;cursor:text;}
+.tag{background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.3);padding:4px 10px;border-radius:20px;font-size:0.75rem;color:var(--gold);display:flex;align-items:center;gap:6px;}
+.tag-remove{cursor:pointer;opacity:0.6;font-weight:700;} .tag-remove:hover{opacity:1;}
+.tag-input{background:none;border:none;outline:none;color:var(--white);font-size:0.8rem;min-width:120px;flex:1;}
+
+/* TOGGLE */
+.toggle-wrap{display:flex;align-items:center;gap:12px;}
+.toggle{position:relative;width:44px;height:24px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#444;border-radius:24px;transition:0.3s;}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s;}
+input:checked+.toggle-slider{background:var(--green);}
+input:checked+.toggle-slider:before{transform:translateX(20px);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--black3);border:1px solid var(--green);border-radius:10px;padding:12px 20px;font-size:0.85rem;color:var(--green);z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;font-weight:600;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:all 0.3s;backdrop-filter:blur(8px);}
+.modal-overlay.open{opacity:1;visibility:visible;}
+.modal-box{background:var(--black3);border:1px solid rgba(255,215,0,0.3);border-radius:20px;padding:28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:1.1rem;font-weight:800;color:var(--gold);margin-bottom:20px;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-content{margin-left:0;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>⚡ Admin Panel</h1>
+      <p>Arman Sangha Agency — Control Center</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" type="text" id="login-user" placeholder="admin" autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <div class="login-error" id="login-error">Invalid username or password</div>
+    <button class="btn btn-gold btn-full" style="margin-top:8px;" onclick="doLogin()">Login to Panel</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <h2>🏛️ Admin Panel</h2>
+        <p id="sb-domain">armansangha.agency</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="showSection('brand')" data-sec="brand"><span class="nav-icon">🏷️</span> Brand Settings</div>
+        <div class="nav-item" onclick="showSection('payment')" data-sec="payment"><span class="nav-icon">💳</span> Payment Settings</div>
+        <div class="nav-item" onclick="showSection('plans')" data-sec="plans"><span class="nav-icon">📊</span> Investment Plans</div>
+        <div class="nav-item" onclick="showSection('notifications')" data-sec="notifications"><span class="nav-icon">🔔</span> Notifications</div>
+        <div class="nav-item" onclick="showSection('ui')" data-sec="ui"><span class="nav-icon">🎨</span> UI Controls</div>
+        <div class="nav-item" onclick="showSection('content')" data-sec="content"><span class="nav-icon">📝</span> Content</div>
+        <div class="nav-item" onclick="showSection('security')" data-sec="security"><span class="nav-icon">🔐</span> Security</div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-ghost btn-full btn-sm" onclick="doLogout()">🚪 Logout</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleSidebar()" style="display:none;" id="mobile-menu-btn">☰</button>
+          <span class="topbar-title" id="topbar-title">Brand Settings</span>
+        </div>
+        <div class="topbar-right">
+          <div class="save-indicator" id="save-indicator">✓ Saved</div>
+          <button class="btn btn-gold btn-sm" onclick="saveAll()">💾 Save & Push Live</button>
+          <a href="/" target="_blank" class="btn btn-ghost btn-sm">🌐 View Site</a>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- BRAND SETTINGS -->
+        <div class="panel-section active" id="sec-brand">
+          <div class="card">
+            <div class="card-title">🏷️ Brand Information</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Agency Name</label><input class="form-input" id="b-name" placeholder="Arman Sangha Agency"/></div>
+              <div class="form-group"><label class="form-label">Domain</label><input class="form-input" id="b-domain" placeholder="armansangha.agency"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Manager Name</label><input class="form-input" id="b-manager" placeholder="Arman Sangha"/></div>
+              <div class="form-group"><label class="form-label">Tagline</label><input class="form-input" id="b-tagline" placeholder="Secure • Transparent • Profitable"/></div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group"><label class="form-label">Logo URL (leave blank for initials)</label><input class="form-input" id="b-logo" placeholder="https://example.com/logo.png"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYMENT SETTINGS -->
+        <div class="panel-section" id="sec-payment">
+          <div class="card">
+            <div class="card-title">💳 Payment Configuration</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">WhatsApp Number (with country code)</label><input class="form-input" id="p-wa" placeholder="919876543210"/></div>
+              <div class="form-group"><label class="form-label">UPI ID</label><input class="form-input" id="p-upi" placeholder="armansangha@upi"/></div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group"><label class="form-label">QR Code URL or Path</label><input class="form-input" id="p-qr" placeholder="/qr-code.jpg or https://..."/></div>
+            </div>
+            <div style="font-size:0.78rem;color:var(--white40);">💡 Upload your QR code to the public folder and enter the path, or use a direct URL.</div>
+          </div>
+        </div>
+
+        <!-- PLANS -->
+        <div class="panel-section" id="sec-plans">
+          <div class="card">
+            <div class="card-title" style="justify-content:space-between;">
+              <span>📊 Investment Plans</span>
+              <button class="btn btn-green btn-sm" onclick="openAddPlan()">+ Add Plan</button>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="plans-table" id="plans-table">
+                <thead><tr><th>Label</th><th>Invest</th><th>Return</th><th>Badge</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="plans-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="panel-section" id="sec-notifications">
+          <div class="card">
+            <div class="card-title">🔔 Payout Notification Settings</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Frequency Min (seconds)</label><input class="form-input" type="number" id="n-freq-min" value="10" min="5" max="60"/></div>
+              <div class="form-group"><label class="form-label">Frequency Max (seconds)</label><input class="form-input" type="number" id="n-freq-max" value="15" min="5" max="120"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Payout Min (₹)</label><input class="form-input" type="number" id="n-pay-min" value="1000"/></div>
+              <div class="form-group"><label class="form-label">Payout Max (₹)</label><input class="form-input" type="number" id="n-pay-max" value="50000"/></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">👥 Names List</div>
+            <p style="font-size:0.78rem;color:var(--white40);margin-bottom:12px;">Type a name and press Enter to add</p>
+            <div class="tags-container" id="names-container" onclick="document.getElementById('name-input').focus()">
+              <input class="tag-input" id="name-input" placeholder="Add name..." onkeydown="addTag(event,'names-container','name-input','names-list')"/>
+            </div>
+            <input type="hidden" id="names-list"/>
+          </div>
+          <div class="card">
+            <div class="card-title">🏙️ Cities List</div>
+            <div class="tags-container" id="cities-container" onclick="document.getElementById('city-input').focus()">
+              <input class="tag-input" id="city-input" placeholder="Add city..." onkeydown="addTag(event,'cities-container','city-input','cities-list')"/>
+            </div>
+            <input type="hidden" id="cities-list"/>
+          </div>
+        </div>
+
+        <!-- UI CONTROLS -->
+        <div class="panel-section" id="sec-ui">
+          <div class="card">
+            <div class="card-title">🎨 UI Controls</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Primary Color (Gold)</label><input class="form-input" type="color" id="ui-primary" value="#FFD700"/></div>
+              <div class="form-group"><label class="form-label">Accent Color (Green)</label><input class="form-input" type="color" id="ui-accent" value="#00A651"/></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;margin-top:8px;">
+              <div class="toggle-wrap">
+                <label class="toggle"><input type="checkbox" id="ui-animations" checked/><span class="toggle-slider"></span></label>
+                <span style="font-size:0.85rem;">Enable Animations</span>
+              </div>
+              <div class="toggle-wrap">
+                <label class="toggle"><input type="checkbox" id="ui-notifs" checked/><span class="toggle-slider"></span></label>
+                <span style="font-size:0.85rem;">Enable Payment Notifications</span>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:16px;">
+              <div class="form-group"><label class="form-label">Limited Slots Count</label><input class="form-input" type="number" id="ui-slots" value="47" min="1" max="999"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="panel-section" id="sec-content">
+          <div class="card">
+            <div class="card-title">📝 Trust & Content</div>
+            <div class="form-group form-row single"><label class="form-label">Trust Section Text</label><textarea class="form-input" id="c-trust" rows="3"></textarea></div>
+            <div class="form-group form-row single"><label class="form-label">Refund Policy</label><textarea class="form-input" id="c-refund" rows="3"></textarea></div>
+            <div class="form-group form-row single"><label class="form-label">Terms & Conditions</label><textarea class="form-input" id="c-terms" rows="5"></textarea></div>
+            <div class="form-group form-row single"><label class="form-label">Footer Text</label><input class="form-input" id="c-footer"/></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">GST Number</label><input class="form-input" id="c-gst" placeholder="27AABCU9603R1ZV"/></div>
+              <div class="form-group"><label class="form-label">Company Details</label><input class="form-input" id="c-company" placeholder="Company name and address"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY -->
+        <div class="panel-section" id="sec-security">
+          <div class="card">
+            <div class="card-title">🔐 Change Admin Password</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">New Username</label><input class="form-input" id="s-user" placeholder="admin"/></div>
+              <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="s-pass" placeholder="New password"/></div>
+            </div>
+            <div style="font-size:0.78rem;color:rgba(255,165,0,0.8);margin-top:8px;">⚠️ Changing credentials logs you out. Save and log in again with new credentials.</div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- PLAN MODAL -->
+<div class="modal-overlay" id="plan-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="plan-modal-title">Add Investment Plan</div>
+    <input type="hidden" id="plan-edit-id"/>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="pm-label" placeholder="Premium"/></div>
+      <div class="form-group"><label class="form-label">Badge Text</label><input class="form-input" id="pm-badge" placeholder="Best Value"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Invest Amount (₹)</label><input class="form-input" type="number" id="pm-invest" placeholder="5000"/></div>
+      <div class="form-group"><label class="form-label">Return Amount (₹)</label><input class="form-input" type="number" id="pm-return" placeholder="7000"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="form-input" id="pm-status"><option value="active">Active</option><option value="disabled">Disabled</option></select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-gold" style="flex:1;" onclick="savePlan()">Save Plan</button>
+      <button class="btn btn-ghost" onclick="closePlanModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let config = {};
+let authToken = '';
+let currentSection = 'brand';
+
+// ===== AUTH =====
+async function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!user || !pass) return;
+  authToken = btoa(user + ':' + pass);
+  try {
+    const res = await fetch('/api/config?t=' + Date.now());
+    const data = await res.json();
+    config = data;
+    // Verify credentials
+    const adminUser = config.admin?.username || 'admin';
+    const adminPass = config.admin?.passwordHash || 'admin123';
+    if (user !== adminUser || pass !== adminPass) {
+      document.getElementById('login-error').style.display = 'block';
+      authToken = '';
+      return;
+    }
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    populateForm();
+    startPolling();
+  } catch(e) {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-error').textContent = 'Connection error. Try again.';
+  }
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogout() {
+  authToken = '';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+// ===== NAV =====
+function showSection(sec) {
+  currentSection = sec;
+  document.querySelectorAll('.panel-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  document.querySelector(`[data-sec="${sec}"]`).classList.add('active');
+  const titles = {brand:'Brand Settings',payment:'Payment Settings',plans:'Investment Plans',notifications:'Notifications',ui:'UI Controls',content:'Content',security:'Security'};
+  document.getElementById('topbar-title').textContent = titles[sec] || sec;
+  // Mobile: close sidebar
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ===== POPULATE FORM =====
+function populateForm() {
+  const b = config.brand || {};
+  setVal('b-name', b.name); setVal('b-domain', b.domain); setVal('b-manager', b.managerName); setVal('b-tagline', b.tagline); setVal('b-logo', b.logoUrl);
+  document.getElementById('sb-domain').textContent = b.domain || 'armansangha.agency';
+
+  const p = config.payment || {};
+  setVal('p-wa', p.whatsappNumber); setVal('p-upi', p.upiId); setVal('p-qr', p.qrCodeUrl);
+
+  const n = config.notifications || {};
+  setVal('n-freq-min', n.frequencyMin || 10); setVal('n-freq-max', n.frequencyMax || 15);
+  setVal('n-pay-min', n.payoutMin || 1000); setVal('n-pay-max', n.payoutMax || 50000);
+  populateTags('names-container', 'name-input', 'names-list', n.names || [], 'names');
+  populateTags('cities-container', 'city-input', 'cities-list', n.cities || [], 'cities');
+
+  const ui = config.ui || {};
+  setVal('ui-primary', ui.primaryColor || '#FFD700');
+  setVal('ui-accent', ui.accentColor || '#00A651');
+  document.getElementById('ui-animations').checked = ui.animationsEnabled !== false;
+  document.getElementById('ui-notifs').checked = ui.notificationsEnabled !== false;
+  setVal('ui-slots', ui.limitedSlots || 47);
+
+  const c = config.content || {};
+  setVal('c-trust', c.trustText); setVal('c-refund', c.refundPolicy); setVal('c-terms', c.terms);
+  setVal('c-footer', c.footer); setVal('c-gst', c.gstNumber); setVal('c-company', c.companyDetails);
+
+  const s = config.admin || {};
+  setVal('s-user', s.username);
+
+  renderPlansTable();
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '';
+}
+
+// ===== TAGS =====
+const tagData = { names: [], cities: [] };
+
+function populateTags(containerId, inputId, hiddenId, items, key) {
+  tagData[key] = [...items];
+  const container = document.getElementById(containerId);
+  const inputEl = document.getElementById(inputId);
+  // Remove old tags
+  container.querySelectorAll('.tag').forEach(t => t.remove());
+  items.forEach(item => {
+    const tag = makeTag(item, containerId, inputId, hiddenId, key);
+    container.insertBefore(tag, inputEl);
+  });
+}
+
+function makeTag(text, containerId, inputId, hiddenId, key) {
+  const tag = document.createElement('div');
+  tag.className = 'tag';
+  tag.innerHTML = `${text}<span class="tag-remove" onclick="removeTag(this,'${containerId}','${hiddenId}','${key}')">✕</span>`;
+  tag.dataset.value = text;
+  return tag;
+}
+
+function addTag(event, containerId, inputId, hiddenId) {
+  if (event.key !== 'Enter' && event.key !== ',') return;
+  event.preventDefault();
+  const inputEl = document.getElementById(inputId);
+  const val = inputEl.value.trim();
+  if (!val) return;
+  const key = hiddenId.replace('-list', 's');
+  if (!tagData[key]) tagData[key] = [];
+  if (tagData[key].includes(val)) { inputEl.value = ''; return; }
+  tagData[key].push(val);
+  const container = document.getElementById(containerId);
+  const tag = makeTag(val, containerId, inputId, hiddenId, key);
+  container.insertBefore(tag, inputEl);
+  inputEl.value = '';
+}
+
+function removeTag(el, containerId, hiddenId, key) {
+  const tag = el.parentElement;
+  const val = tag.dataset.value;
+  if (tagData[key]) tagData[key] = tagData[key].filter(x => x !== val);
+  tag.remove();
+}
+
+// ===== PLANS TABLE =====
+function renderPlansTable() {
+  const tbody = document.getElementById('plans-tbody');
+  tbody.innerHTML = (config.plans || []).map((plan, i) => `
+    <tr>
+      <td><strong>${plan.label}</strong></td>
+      <td>₹${(plan.invest||0).toLocaleString('en-IN')}</td>
+      <td style="color:var(--green)">₹${(plan.return||0).toLocaleString('en-IN')}</td>
+      <td><span style="font-size:0.75rem;color:var(--gold)">${plan.badge||'-'}</span></td>
+      <td><span class="status-badge ${plan.status==='active'?'status-active':'status-disabled'}">${plan.status}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openEditPlan(${i})" style="margin-right:6px;">✏️</button>
+        <button class="btn btn-sm ${plan.status==='active'?'btn-danger':'btn-green'}" onclick="togglePlanStatus(${i})">${plan.status==='active'?'Disable':'Enable'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePlan(${i})" style="margin-left:6px;">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openAddPlan() {
+  document.getElementById('plan-modal-title').textContent = 'Add Investment Plan';
+  document.getElementById('plan-edit-id').value = '';
+  ['pm-label','pm-badge','pm-invest','pm-return'].forEach(id => setVal(id, ''));
+  setVal('pm-status', 'active');
+  document.getElementById('plan-modal').classList.add('open');
+}
+
+function openEditPlan(i) {
+  const plan = config.plans[i];
+  document.getElementById('plan-modal-title').textContent = 'Edit Plan';
+  document.getElementById('plan-edit-id').value = i;
+  setVal('pm-label', plan.label); setVal('pm-badge', plan.badge);
+  setVal('pm-invest', plan.invest); setVal('pm-return', plan.return); setVal('pm-status', plan.status);
+  document.getElementById('plan-modal').classList.add('open');
+}
+
+function savePlan() {
+  const label = document.getElementById('pm-label').value.trim();
+  const invest = parseInt(document.getElementById('pm-invest').value);
+  const ret = parseInt(document.getElementById('pm-return').value);
+  if (!label || !invest || !ret) { showToast('Fill all required fields', 'error'); return; }
+  const plan = { label, badge: document.getElementById('pm-badge').value.trim(), invest, return: ret, status: document.getElementById('pm-status').value };
+  const editIdx = document.getElementById('plan-edit-id').value;
+  if (editIdx !== '') {
+    plan.id = config.plans[parseInt(editIdx)].id;
+    config.plans[parseInt(editIdx)] = plan;
+  } else {
+    plan.id = Date.now();
+    config.plans = config.plans || [];
+    config.plans.push(plan);
+  }
+  renderPlansTable();
+  closePlanModal();
+  showToast('Plan saved — click "Save & Push Live"');
+}
+
+function togglePlanStatus(i) {
+  config.plans[i].status = config.plans[i].status === 'active' ? 'disabled' : 'active';
+  renderPlansTable();
+}
+
+function deletePlan(i) {
+  if (!confirm('Delete this plan?')) return;
+  config.plans.splice(i, 1);
+  renderPlansTable();
+  showToast('Plan deleted — click "Save & Push Live"');
+}
+
+function closePlanModal() {
+  document.getElementById('plan-modal').classList.remove('open');
+}
+
+document.getElementById('plan-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePlanModal();
+});
+
+// ===== COLLECT & SAVE =====
+function collectConfig() {
+  config.brand = {
+    name: getVal('b-name'), domain: getVal('b-domain'), managerName: getVal('b-manager'),
+    tagline: getVal('b-tagline'), logoUrl: getVal('b-logo')
+  };
+  config.payment = { whatsappNumber: getVal('p-wa'), upiId: getVal('p-upi'), qrCodeUrl: getVal('p-qr') };
+  config.notifications = {
+    enabled: true,
+    frequencyMin: parseInt(getVal('n-freq-min')) || 10,
+    frequencyMax: parseInt(getVal('n-freq-max')) || 15,
+    payoutMin: parseInt(getVal('n-pay-min')) || 1000,
+    payoutMax: parseInt(getVal('n-pay-max')) || 50000,
+    names: tagData.names || [],
+    cities: tagData.cities || []
+  };
+  config.ui = {
+    primaryColor: getVal('ui-primary'), accentColor: getVal('ui-accent'),
+    animationsEnabled: document.getElementById('ui-animations').checked,
+    notificationsEnabled: document.getElementById('ui-notifs').checked,
+    limitedSlots: parseInt(getVal('ui-slots')) || 47
+  };
+  config.content = {
+    trustText: getVal('c-trust'), refundPolicy: getVal('c-refund'), terms: getVal('c-terms'),
+    footer: getVal('c-footer'), gstNumber: getVal('c-gst'), companyDetails: getVal('c-company')
+  };
+  // Admin credentials
+  const newUser = getVal('s-user');
+  const newPass = getVal('s-pass');
+  if (newUser || newPass) {
+    config.admin = { username: newUser || config.admin?.username || 'admin', passwordHash: newPass || config.admin?.passwordHash || 'admin123' };
+  }
+  config._timestamp = Date.now();
+  return config;
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+async function saveAll() {
+  const data = collectConfig();
+  try {
+    const res = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      body: JSON.stringify(data)
+    });
+    if (res.status === 401) { showToast('Session expired. Please login again.', 'error'); doLogout(); return; }
+    if (!res.ok) throw new Error('Save failed');
+    showToast('✅ Saved & pushed live! All visitors updated.');
+    showSaveIndicator();
+    // If credentials changed, re-auth
+    if (getVal('s-pass')) {
+      showToast('Credentials changed — logging out', 'info');
+      setTimeout(doLogout, 1500);
+    }
+  } catch(e) {
+    showToast('❌ Save failed: ' + e.message, 'error');
+  }
+}
+
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderColor = type === 'error' ? 'var(--red)' : type === 'info' ? 'var(--gold)' : 'var(--green)';
+  el.style.color = type === 'error' ? 'var(--red)' : type === 'info' ? 'var(--gold)' : 'var(--green)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== POLL FOR EXTERNAL CHANGES =====
+function startPolling() {
+  setInterval(async () => {
+    try {
+      const res = await fetch('/api/config?t=' + Date.now());
+      const data = await res.json();
+      // Only refresh if not actively editing
+      if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        config.plans = data.plans; // Keep plans in sync
+        renderPlansTable();
+      }
+    } catch(e) {}
+  }, 10000);
+}
+
+// Mobile responsiveness
+if (window.innerWidth <= 768) {
+  document.getElementById('mobile-menu-btn').style.display = 'block';
+}
+</script>
+</body>
+</html>
